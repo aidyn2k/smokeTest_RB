@@ -1,4 +1,7 @@
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.WebDriverRunner;
 import helpers.AllureRestAssuredFilter;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
@@ -8,41 +11,36 @@ import org.openqa.selenium.Cookie;
 import org.openqa.selenium.JavascriptExecutor;
 
 import static com.codeborne.selenide.Selectors.byText;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.responseSpecification;
+import static io.restassured.http.ContentType.JSON;
 
 public class TestBase {
 
-//    SmokeTest mainPage = new SmokeTest();
+//    @BeforeAll
+//    public static void browser() {
+//        Configuration.startMaximized = true;
+//
+//        open("http://rahmetbiz.chocodev.kz/");
+//        $("[type='text']").setValue("77078092707")
+//                .pressEnter();
+//        $(byText("adilk***@rahmetapp.kz")).click();
+//        $("button").click();
+//        $("[type='text']").setValue("4444")
+//                .pressEnter();
+//    }
 
     @BeforeAll
-    public static void browser() {
-        Configuration.startMaximized = true;
-
-        open("http://rahmetbiz.chocodev.kz/");
-        $("[type='text']").setValue("77078092707")
-                .pressEnter();
-        $(byText("adilk***@rahmetapp.kz")).click();
-        $("button").click();
-        $("[type='text']").setValue("4444")
-                .pressEnter();
-    }
-
-    @BeforeAll
-    public static void setUp() {
-        Object driver = null;
+    public static void tokenSetUp() {
+        String body;
+        body = "{\"login\": \"adilkhan.a@rahmetapp.kz\", \"password\": \"razdvatri\", \"client_id\": \"34958380\", \"grant_type\": \"password\"}";
         Response authorizationToken =
                 given()
-                        .filter(AllureRestAssuredFilter.withCustomTemplates())
-                        .contentType("application/x-www-form-urlencoded; charset=UTF-8")
-                        .formParam("login", "adilkhan.a@rahmetapp.kz")
-                        .formParam("password", "razdvatri")
-                        .formParam("client_id", "34958381")
-                        .formParam("grant_type", "password")
+                        .contentType(JSON)
+                        .body(body)
                         .when()
                         .post("https://gateway.choco.kz/auth/token")
                         .then()
@@ -51,20 +49,12 @@ public class TestBase {
                         .response();
 
         String token = authorizationToken.path("data.token");
-
-        try {
-            open("http://cabinet.rahmet.biz/");
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-            js.executeScript("return window.stop");
-        } catch (NullPointerException e) {
-            System.out.println("Error with stopping of loading page in browser");
-        }
-
+        open("https://cabinet.rahmet.biz/assets/img/sidebar/main-page--active.svg");
         getWebDriver().manage().addCookie(new Cookie("Auth-Token", token));
     }
 
     @BeforeEach
     public void beforeEach() {
-        open("http://rahmetbiz.chocodev.kz/");
+        open("https://cabinet.rahmet.biz");
     }
 }
