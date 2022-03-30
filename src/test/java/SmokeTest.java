@@ -1,4 +1,3 @@
-import com.codeborne.selenide.Configuration;
 import io.qameta.allure.*;
 import org.junit.jupiter.api.*;
 
